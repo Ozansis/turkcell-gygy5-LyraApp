@@ -1,9 +1,8 @@
-package com.turkcell.lyraapp.ui.screens.login
+package com.turkcell.lyraapp.ui.screens.register
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,31 +13,36 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,66 +50,60 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.turkcell.lyraapp.ui.theme.LyraTheme
 
 @Composable
-fun LoginRoute(
-    viewModel: LoginViewModel = hiltViewModel(),
+fun RegisterRoute(
+    viewModel: RegisterViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit = {},
-    onNavigateToRegister: () -> Unit = {},
-    onNavigateToForgotPassword: () -> Unit = {},
+    onNavigateToLogin: () -> Unit = {},
+    onNavigateUp: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                LoginEffect.NavigateToHome           -> onNavigateToHome()
-                LoginEffect.NavigateToForgotPassword -> onNavigateToForgotPassword()
-                LoginEffect.NavigateToRegister       -> onNavigateToRegister()
+                RegisterEffect.NavigateToHome  -> onNavigateToHome()
+                RegisterEffect.NavigateToLogin -> onNavigateToLogin()
+                RegisterEffect.NavigateUp      -> onNavigateUp()
             }
         }
     }
 
-    LoginScreen(state = state, onIntent = viewModel::onIntent)
+    RegisterScreen(state = state, onIntent = viewModel::onIntent)
 }
 
 @Composable
-fun LoginScreen(
-    state: LoginState,
-    onIntent: (LoginIntent) -> Unit,
+fun RegisterScreen(
+    state: RegisterState,
+    onIntent: (RegisterIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 24.dp)
             .imePadding(),
         horizontalAlignment = Alignment.Start,
     ) {
         Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(16.dp),
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
+            Spacer(Modifier.height(16.dp))
+
+            IconButton(onClick = { onIntent(RegisterIntent.BackClicked) }) {
                 Icon(
-                    imageVector = Icons.Default.GraphicEq,
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Geri",
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "Tekrar hoş geldin",
+                text = "Hesap oluştur",
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -113,23 +111,47 @@ fun LoginScreen(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Hesabına giriş yap, kaldığın yerden dinlemeye devam et.",
+                text = "Birkaç adımda Lyra'ya katıl ve çalma listeni oluştur.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(Modifier.height(32.dp))
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                OutlinedTextField(
+                    value = state.firstName,
+                    onValueChange = { onIntent(RegisterIntent.FirstNameChanged(it)) },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Ad") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                )
+                OutlinedTextField(
+                    value = state.lastName,
+                    onValueChange = { onIntent(RegisterIntent.LastNameChanged(it)) },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Soyad") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                )
+            }
+
+            Spacer(Modifier.height(12.dp))
+
             OutlinedTextField(
                 value = state.phoneNumber,
-                onValueChange = { onIntent(LoginIntent.PhoneNumberChanged(it)) },
+                onValueChange = { onIntent(RegisterIntent.PhoneNumberChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Telefon numarası") },
                 placeholder = { Text("5XX XXX XX XX") },
                 leadingIcon = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Smartphone,
                             contentDescription = null,
@@ -157,7 +179,7 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = state.password,
-                onValueChange = { onIntent(LoginIntent.PasswordChanged(it)) },
+                onValueChange = { onIntent(RegisterIntent.PasswordChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Şifre") },
                 leadingIcon = {
@@ -168,14 +190,14 @@ fun LoginScreen(
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = { onIntent(LoginIntent.PasswordVisibilityToggled) }) {
+                    IconButton(onClick = { onIntent(RegisterIntent.PasswordVisibilityToggled) }) {
                         Icon(
                             imageVector = if (state.passwordVisible) {
                                 Icons.Default.VisibilityOff
                             } else {
                                 Icons.Default.Visibility
                             },
-                            contentDescription = if (state.passwordVisible) "Sifreyi gizle" else "Sifreyi goster",
+                            contentDescription = if (state.passwordVisible) "Şifreyi gizle" else "Şifreyi göster",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -189,29 +211,58 @@ fun LoginScreen(
                 shape = RoundedCornerShape(12.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 isError = state.error != null,
-                supportingText = state.error?.let { { Text(it) } },
+                supportingText = {
+                    Text(
+                        text = state.error ?: "En az 8 karakter, bir rakam içermeli.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (state.error != null) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                },
             )
-
-            TextButton(
-                onClick = { onIntent(LoginIntent.ForgotPasswordClicked) },
-                modifier = Modifier.align(Alignment.End),
-            ) {
-                Text(
-                    text = "Şifremi unuttum",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
 
             Spacer(Modifier.height(8.dp))
 
-            FilledTonalButton(
-                onClick = { onIntent(LoginIntent.LoginClicked) },
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoading,
+            ) {
+                Checkbox(
+                    checked = state.termsAccepted,
+                    onCheckedChange = { onIntent(RegisterIntent.TermsAcceptanceToggled) },
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                            append("Kullanım Koşulları")
+                        }
+                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface)) {
+                            append(" ve ")
+                        }
+                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                            append("Gizlilik Politikası")
+                        }
+                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface)) {
+                            append("'nı okudum, kabul ediyorum.")
+                        }
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            FilledTonalButton(
+                onClick = { onIntent(RegisterIntent.RegisterClicked) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = state.termsAccepted && !state.isLoading,
             ) {
                 Text(
-                    text = if (state.isLoading) "Giriş yapılıyor..." else "Giriş yap",
+                    text = if (state.isLoading) "Kaydediliyor..." else "Kayıt ol",
                     style = MaterialTheme.typography.labelLarge,
                 )
                 if (!state.isLoading) {
@@ -223,6 +274,8 @@ fun LoginScreen(
                     )
                 }
             }
+
+            Spacer(Modifier.height(24.dp))
         }
 
         Row(
@@ -233,15 +286,15 @@ fun LoginScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Hesabın yok mu? ",
+                text = "Zaten hesabın var mı? ",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                text = "Kayıt ol",
+                text = "Giriş yap",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { onIntent(LoginIntent.RegisterClicked) },
+                modifier = Modifier.clickable { onIntent(RegisterIntent.NavigateToLoginClicked) },
             )
         }
     }
@@ -249,10 +302,10 @@ fun LoginScreen(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun LoginScreenLightPreview() {
+private fun RegisterScreenLightPreview() {
     LyraTheme(darkTheme = false) {
-        LoginScreen(
-            state = LoginState(),
+        RegisterScreen(
+            state = RegisterState(),
             onIntent = {},
         )
     }
@@ -260,10 +313,10 @@ private fun LoginScreenLightPreview() {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun LoginScreenDarkPreview() {
+private fun RegisterScreenDarkPreview() {
     LyraTheme(darkTheme = true) {
-        LoginScreen(
-            state = LoginState(),
+        RegisterScreen(
+            state = RegisterState(),
             onIntent = {},
         )
     }

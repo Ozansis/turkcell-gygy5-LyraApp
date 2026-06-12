@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.turkcell.lyraapp.ui.screens.login.LoginRoute
+import com.turkcell.lyraapp.ui.navigation.LyraNavGraph
 import com.turkcell.lyraapp.ui.theme.LyraTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LyraTheme {
-                LoginRoute()
+                LyraNavGraph()
             }
         }
     }

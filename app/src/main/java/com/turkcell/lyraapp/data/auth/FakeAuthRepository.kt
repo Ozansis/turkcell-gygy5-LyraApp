@@ -13,4 +13,18 @@ class FakeAuthRepository @Inject constructor() : AuthRepository {
             Result.failure(Exception("Hatalı numara veya şifre"))
         }
     }
+
+    override suspend fun register(
+        firstName: String,
+        lastName: String,
+        phoneNumber: String,
+        password: String,
+    ): Result<Unit> {
+        delay(1_500)
+        return if (firstName.isNotBlank() && lastName.isNotBlank() && phoneNumber.isNotBlank()) {
+            Result.success(Unit)
+        } else {
+            Result.failure(Exception("Kayıt sırasında bir hata oluştu"))
+        }
+    }
 }
