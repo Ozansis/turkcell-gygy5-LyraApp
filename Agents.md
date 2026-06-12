@@ -29,7 +29,19 @@ Kod üretmeden önce şunları yapmak zorundasın;
 
 - Planı sun, onay almadan asla implementasyona başlama.
 
-## 3) ÇIKTI FORMATI
+## 3) MİMARİ REFERANSLAR
+
+Herhangi bir MVI ekranı oluşturmadan veya değiştirmeden önce aşağıdaki dosyaları okumak zorundasın. Bu dosyalar mevcut implementasyondan türetilmiş bağlayıcı kurallardır; yorum yapılamaz, atlanamaz.
+
+- `docs/architecture/mvi-overview.md` — Genel yapı, katman düzeni, Route/Screen ayrımı
+- `docs/architecture/mvi-contracts.md` — State / Intent / Effect kuralları ve isimlendirme standartları
+- `docs/architecture/mvi-viewmodel-rules.md` — ViewModel şablonu ve zorunlu kurallar
+
+MVI dışındaki mimari kararlar için: `docs/decisions.md`
+
+---
+
+## 4) ÇIKTI FORMATI
 
 Her implementasyon ya da plan sonrası aşağıdaki çıktı formatına uymak zorundasın.
 
