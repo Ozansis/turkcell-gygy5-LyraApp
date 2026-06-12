@@ -7,11 +7,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.turkcell.lyraapp.ui.screens.login.LoginRoute
+import com.turkcell.lyraapp.ui.screens.main.MainRoute
 import com.turkcell.lyraapp.ui.screens.register.RegisterRoute
 
 private object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val MAIN = "main"
 }
 
 @Composable
@@ -26,14 +28,22 @@ fun LyraNavGraph(
     ) {
         composable(Routes.LOGIN) {
             LoginRoute(
-                onNavigateToHome = { /* TODO: Ana sayfa bağlandığında doldurulacak */ },
+                onNavigateToHome = {
+                    navController.navigate(Routes.MAIN) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                },
                 onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
                 onNavigateToForgotPassword = { /* TODO */ },
             )
         }
         composable(Routes.REGISTER) {
             RegisterRoute(
-                onNavigateToHome = { /* TODO: Ana sayfa bağlandığında doldurulacak */ },
+                onNavigateToHome = {
+                    navController.navigate(Routes.MAIN) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                },
                 onNavigateToLogin = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
@@ -41,6 +51,9 @@ fun LyraNavGraph(
                 },
                 onNavigateUp = { navController.navigateUp() },
             )
+        }
+        composable(Routes.MAIN) {
+            MainRoute()
         }
     }
 }
